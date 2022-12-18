@@ -1,0 +1,199 @@
+---
+title: "MBTA Travel Time Exploratory Data Analysis"
+author: "Wang Jingyao"
+date: '2022-12-13'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+## Introduction
+
+Public transportation has now become one of the main ways for people to travel. The development of public transportation in a city can reflect the development of the city. In this report, we will perform Exploratory Data Analysis on MTBA dataset.
+
+## Data
+
+We use the open data on MBTA website for our EDA. The dataset that we chose are `MBTA Travel Times 2021` and `MBTA Travel Times 2022`. These two datasets contains the data of MBTA from 2021 January to 2022 September. We select the time period from 2021 October to 2022 September, choose the first 7 days from each month, then bind these data to a new dataset named `LR_New`. We are going to analyzing the travel time of Green line of MBTA.
+
+```{r, include=FALSE}
+LRQ4_21 <- read.csv("LRTravelTimesQ4_21.csv")
+LRQ1_22 <- read.csv("2022-Q1_LRTravelTimes.csv")
+LRQ2_22 <- read.csv("2022-Q2_LRTravelTimes.csv")
+LRQ3_22 <- read.csv("2022-Q3_LRTravelTimes.csv")
+```
+
+```{r, include=FALSE}
+LRQ4_21_New <- LRQ4_21 %>%
+  filter(service_date == "2021-10-01" | service_date == "2021-10-02"|
+           service_date == "2021-10-03" | service_date == "2021-10-04"|
+           service_date == "2021-10-05" | service_date == "2021-10-06"|
+           service_date == "2021-10-07" | service_date == "2021-11-01"| 
+           service_date == "2021-11-02" | service_date == "2021-11-03"| 
+           service_date == "2021-11-04" | service_date == "2021-11-05"| 
+           service_date == "2021-11-06" | service_date == "2021-11-07"| 
+           service_date == "2021-12-01" | service_date == "2021-12-02"| 
+           service_date == "2021-12-03" | service_date == "2021-12-04"| 
+           service_date == "2021-12-05" | service_date == "2021-12-06" | 
+           service_date == "2021-12-07")
+
+LRQ1_22_New <- LRQ1_22 %>%
+  filter(service_date == "2022-01-01" | service_date == "2022-01-02" |
+           service_date == "2022-01-03" | service_date == "2022-01-04" |
+           service_date == "2022-01-05" | service_date == "2022-01-06" |
+           service_date == "2022-01-07" | service_date == "2022-02-01" |
+           service_date == "2022-02-02" | service_date == "2022-02-03" |
+           service_date == "2022-02-04" | service_date == "2022-02-05" |
+           service_date == "2022-02-06" | service_date == "2022-02-07" |
+           service_date == "2022-03-01" | service_date == "2022-03-02" |
+           service_date == "2022-03-03" | service_date == "2022-03-04" |
+           service_date == "2022-03-05" | service_date == "2022-03-06" |
+           service_date == "2022-03-07")
+
+LRQ2_22_New <- LRQ2_22 %>%
+  filter(service_date == "2022-04-01" | service_date == "2022-04-02" |
+           service_date == "2022-04-03" | service_date == "2022-04-04" |
+           service_date == "2022-04-05" | service_date == "2022-04-06" |
+           service_date == "2022-04-07" | service_date == "2022-05-01" |
+           service_date == "2022-05-02" | service_date == "2022-05-03" |
+           service_date == "2022-05-04" | service_date == "2022-05-05" |
+           service_date == "2022-05-06" | service_date == "2022-05-07" |
+           service_date == "2022-06-01" | service_date == "2022-06-02" |
+           service_date == "2022-06-03" | service_date == "2022-06-04" |
+           service_date == "2022-06-05" | service_date == "2022-06-06" |
+           service_date == "2022-06-07")
+
+LRQ3_22_New <- LRQ3_22 %>%
+  filter(service_date == "2022-07-01" | service_date == "2022-07-02" |
+           service_date == "2022-07-03" | service_date == "2022-07-04" |
+           service_date == "2022-07-05" | service_date == "2022-07-06" |
+           service_date == "2022-07-07" | service_date == "2022-08-01" |
+           service_date == "2022-08-02" | service_date == "2022-08-03" |
+           service_date == "2022-08-04" | service_date == "2022-08-05" |
+           service_date == "2022-08-06" | service_date == "2022-08-07" |
+           service_date == "2022-09-01" | service_date == "2022-09-02" |
+           service_date == "2022-09-03" | service_date == "2022-09-04" |
+           service_date == "2022-09-05" | service_date == "2022-09-06" |
+           service_date == "2022-09-07")
+```
+
+```{r, include=FALSE}
+LR_New <- rbind(LRQ4_21_New, LRQ1_22_New, LRQ2_22_New, LRQ3_22_New)
+#unique(LR_New$route_id)
+```
+
+## Exploratory Data Analysis
+
+The green line of MTBA contains Green line B, C, D, E. Our data also contains Mattapan, which is an MBTA light rail station in Boston, Massachusetts. Our first exploratory data analysis is to count which trips appear the most in the Green Line. As shown in the chart, among the Green Line, the B Line has the most trips and the E Line has the least. In the whole data, Mattapan has the least number of trips.
+
+```{r, include=FALSE}
+count(LR_New, route_id)
+```
+
+```{r, echo=FALSE}
+data <- data.frame(
+  route = c("Green-B", "Green-C", "Green-D","Green-E", "Mattapan"),
+  count = c(4197990, 3366843, 3311232, 2675314, 394264)
+)
+
+data$fraction = data$count / sum(data$count)
+
+data$ymax = cumsum(data$fraction)
+
+data$ymin = c(0, head(data$ymax, n=-1))
+
+ggplot(data, aes(ymax=ymax, ymin=ymin, xmax=4, xmin=3, fill=route)) +
+  ggtitle("MBTA Route")+
+  geom_rect() + 
+  coord_polar(theta="y") + 
+  xlim(c(2, 4))
+```
+
+```{r, include=FALSE}
+LRQ4_New2 <- LRQ4_21_New %>% 
+  mutate(service_quarter = '2021 Q4')
+
+LRQ1_New2 <- LRQ1_22_New  %>% 
+  mutate(service_quarter = '2022 Q1')
+
+LRQ2_New2 <- LRQ2_22_New  %>% 
+  mutate(service_quarter = '2022 Q2')
+
+LRQ3_New2 <- LRQ3_22_New  %>% 
+  mutate(service_quarter = '2022 Q3')
+
+LR_New2 <- rbind(LRQ4_New2, LRQ1_New2, LRQ2_New2, LRQ3_New2)
+```
+
+
+```{r, include=FALSE}
+data2 <- filter(LRQ4_New2, route_id == "Green-B")
+mean(data2$travel_time_sec)
+data3 <- filter(LRQ4_New2, route_id == "Green-C")
+mean(data3$travel_time_sec)
+data4 <- filter(LRQ4_New2, route_id == "Green-D")
+mean(data4$travel_time_sec)
+data5 <- filter(LRQ4_New2, route_id == "Green-E")
+mean(data5$travel_time_sec)
+data6 <- filter(LRQ4_New2, route_id == "Mattapan")
+mean(data6$travel_time_sec)
+
+data7 <- filter(LRQ1_New2, route_id == "Green-B")
+mean(data7$travel_time_sec)
+data8 <- filter(LRQ1_New2, route_id == "Green-C")
+mean(data8$travel_time_sec)
+data9 <- filter(LRQ1_New2, route_id == "Green-D")
+mean(data9$travel_time_sec)
+data10 <- filter(LRQ1_New2, route_id == "Green-E")
+mean(data10$travel_time_sec)
+data11 <- filter(LRQ1_New2, route_id == "Mattapan")
+mean(data11$travel_time_sec)
+
+data12 <- filter(LRQ2_New2, route_id == "Green-B")
+mean(data12$travel_time_sec)
+data13 <- filter(LRQ2_New2, route_id == "Green-C")
+mean(data13$travel_time_sec)
+data14 <- filter(LRQ2_New2, route_id == "Green-D")
+mean(data14$travel_time_sec)
+data15 <- filter(LRQ2_New2, route_id == "Green-E")
+mean(data15$travel_time_sec)
+data16 <- filter(LRQ2_New2, route_id == "Mattapan")
+mean(data16$travel_time_sec)
+
+data17 <- filter(LRQ3_New2, route_id == "Green-B")
+mean(data17$travel_time_sec)
+data18 <- filter(LRQ3_New2, route_id == "Green-C")
+mean(data18$travel_time_sec)
+data19 <- filter(LRQ3_New2, route_id == "Green-D")
+mean(data19$travel_time_sec)
+data20 <- filter(LRQ3_New2, route_id == "Green-E")
+mean(data20$travel_time_sec)
+data21 <- filter(LRQ3_New2, route_id == "Mattapan")
+mean(data21$travel_time_sec)
+```
+
+Then we want to analyze the travel time of each route. We sorted the data by quarter, October to December is named `2021 Q4`, January to March is named `2022 Q1`, April to June is named `2022 Q2`, July to September is named `2022 Q3`.  The travel time is the time that takes between the origin stop and the destination stop. We calculate the average travel time of each line route in different quarter. 
+
+According to the bar plot, we can notice that each line has a similar travel time in different quarter. The Green line D takes the longest time, which is around 1000 seconds and the Mattapan takes the shortest time, around 200 seconds. The route that took the second most time is Green line B, which is about 860 seconds.
+
+```{r, echo=FALSE}
+datanew <- data.frame(
+  Route = c("Green-B", "Green-C", "Green-D","Green-E", "Mattapan","Green-B", "Green-C", "Green-D","Green-E", "Mattapan","Green-B", "Green-C", "Green-D","Green-E", "Mattapan","Green-B", "Green-C", "Green-D","Green-E", "Mattapan"),
+  Quarter = c("2021 Q4", "2021 Q4","2021 Q4","2021 Q4","2021 Q4", "2022 Q1","2022 Q1","2022 Q1","2022 Q1","2022 Q1", "2022 Q2","2022 Q2","2022 Q2","2022 Q2","2022 Q2", "2022 Q3","2022 Q3","2022 Q3","2022 Q3","2022 Q3"),
+  Time = c(887.9392, 685.635, 982.7232, 704.1602, 196.4922,860.2365, 628.4755, 1011.601, 686.3187, 198.8471,851.4179, 646.7603, 957.6384, 694.176, 198.1665, 877.5867, 652.7706, 997.822, 705.6719, 201.73536)
+)
+
+ggplot(datanew, aes(fill=Route, y=Time, x=Quarter)) + 
+  ggtitle("Average Travel Time of Different Route") +
+  geom_bar(position="dodge", stat="identity")
+```
+

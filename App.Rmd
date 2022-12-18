@@ -1,0 +1,131 @@
+---
+title: "App"
+author: "Wang Jingyao"
+date: '2022-12-16'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(data.table)
+```
+
+
+```{r}
+LRQ4_21 <- read.csv("LRTravelTimesQ4_21.csv")
+LRQ1_22 <- read.csv("2022-Q1_LRTravelTimes.csv")
+LRQ2_22 <- read.csv("2022-Q2_LRTravelTimes.csv")
+LRQ3_22 <- read.csv("2022-Q3_LRTravelTimes.csv")
+```
+
+```{r, include=FALSE}
+LRQ4_21_New <- LRQ4_21 %>%
+  filter(service_date == "2021-10-01" | service_date == "2021-10-02"|
+           service_date == "2021-10-03" | service_date == "2021-10-04"|
+           service_date == "2021-10-05" | service_date == "2021-10-06"|
+           service_date == "2021-10-07" | service_date == "2021-11-01"| 
+           service_date == "2021-11-02" | service_date == "2021-11-03"| 
+           service_date == "2021-11-04" | service_date == "2021-11-05"| 
+           service_date == "2021-11-06" | service_date == "2021-11-07"| 
+           service_date == "2021-12-01" | service_date == "2021-12-02"| 
+           service_date == "2021-12-03" | service_date == "2021-12-04"| 
+           service_date == "2021-12-05" | service_date == "2021-12-06" | 
+           service_date == "2021-12-07")
+
+LRQ1_22_New <- LRQ1_22 %>%
+  filter(service_date == "2022-01-01" | service_date == "2022-01-02" |
+           service_date == "2022-01-03" | service_date == "2022-01-04" |
+           service_date == "2022-01-05" | service_date == "2022-01-06" |
+           service_date == "2022-01-07" | service_date == "2022-02-01" |
+           service_date == "2022-02-02" | service_date == "2022-02-03" |
+           service_date == "2022-02-04" | service_date == "2022-02-05" |
+           service_date == "2022-02-06" | service_date == "2022-02-07" |
+           service_date == "2022-03-01" | service_date == "2022-03-02" |
+           service_date == "2022-03-03" | service_date == "2022-03-04" |
+           service_date == "2022-03-05" | service_date == "2022-03-06" |
+           service_date == "2022-03-07")
+
+LRQ2_22_New <- LRQ2_22 %>%
+  filter(service_date == "2022-04-01" | service_date == "2022-04-02" |
+           service_date == "2022-04-03" | service_date == "2022-04-04" |
+           service_date == "2022-04-05" | service_date == "2022-04-06" |
+           service_date == "2022-04-07" | service_date == "2022-05-01" |
+           service_date == "2022-05-02" | service_date == "2022-05-03" |
+           service_date == "2022-05-04" | service_date == "2022-05-05" |
+           service_date == "2022-05-06" | service_date == "2022-05-07" |
+           service_date == "2022-06-01" | service_date == "2022-06-02" |
+           service_date == "2022-06-03" | service_date == "2022-06-04" |
+           service_date == "2022-06-05" | service_date == "2022-06-06" |
+           service_date == "2022-06-07")
+
+LRQ3_22_New <- LRQ3_22 %>%
+  filter(service_date == "2022-07-01" | service_date == "2022-07-02" |
+           service_date == "2022-07-03" | service_date == "2022-07-04" |
+           service_date == "2022-07-05" | service_date == "2022-07-06" |
+           service_date == "2022-07-07" | service_date == "2022-08-01" |
+           service_date == "2022-08-02" | service_date == "2022-08-03" |
+           service_date == "2022-08-04" | service_date == "2022-08-05" |
+           service_date == "2022-08-06" | service_date == "2022-08-07" |
+           service_date == "2022-09-01" | service_date == "2022-09-02" |
+           service_date == "2022-09-03" | service_date == "2022-09-04" |
+           service_date == "2022-09-05" | service_date == "2022-09-06" |
+           service_date == "2022-09-07")
+```
+
+```{r, include=FALSE}
+LR_New <- rbind(LRQ4_21_New, LRQ1_22_New, LRQ2_22_New, LRQ3_22_New)
+#unique(LR_New$route_id)
+```
+
+```{r, include=FALSE}
+unique(LRQ4_21_New$from_stop_id)
+unique(LRQ4_21_New$to_stop_id)
+```
+
+```{r, include=FALSE}
+LR_B <- LR_New %>%
+  filter(from_stop_id == "70111" , to_stop_id == "70107") %>% 
+  mutate(from_stop = "South Street", to_stop = "Boston College",
+         from_stop_lat = "42.339581", from_stop_lon = "-71.157499",
+         to_stop_lat = "42.340240", to_stop_lon = "-71.166849",
+         mean_time = mean(LR_BC$travel_time_sec))
+
+LR_C <- LR_New %>%
+  filter(from_stop_id == "70225" , to_stop_id == "70233") %>%
+  mutate(from_stop = "Brandon Hall", to_stop = "Dean Road",
+         from_stop_lat = "42.340053", from_stop_lon = "-71.128869",
+         to_stop_lat = "42.337807", to_stop_lon = "-71.141753",
+         mean_time = mean(LR_DR$travel_time_sec))
+
+LR_D <- LR_New %>%
+  filter(from_stop_id == "70167" , to_stop_id == "70161") %>%
+  mutate(from_stop = "Eliot", to_stop = "Riverside",
+         from_stop_lat = "42.319214", from_stop_lon = "-71.216949",
+         to_stop_lat = "42.337348", to_stop_lon = "-71.252236",
+         mean_time = mean(LR_NT$travel_time_sec))
+
+LR_E <- LR_New %>%
+  filter(from_stop_id == "70251" , to_stop_id == "70257") %>%
+  mutate(from_stop = "Fenwood Road", to_stop = "Back of the Hill",
+         from_stop_lat = "42.333740", from_stop_lon = "-71.105721",
+         to_stop_lat = "42.329369", to_stop_lon = "-71.111046",
+         mean_time = mean(LR_BH$travel_time_sec))
+```
+
+```{r, include=FALSE}
+LR_stop <- rbind(LR_B, LR_C, LR_D, LR_E)
+
+unique(LR_stop$from_stop_lon)
+```
+
+```{r}
+save(LR_stop,file='LR_stop.RData')
+fwrite(LR_stop,file='LR_stop.csv',sep=",")
+```
+
